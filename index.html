@@ -300,9 +300,9 @@
 <div class="toast" id="toast"></div>
 <script>
 const EMAILJS_CONFIG={
-  publicKey:"YOUR_EMAILJS_PUBLIC_KEY",
-  serviceId:"YOUR_EMAILJS_SERVICE_ID",
-  templateId:"YOUR_EMAILJS_TEMPLATE_ID",
+  publicKey:"Ci4f7BYA6smdYP4-Q",
+  serviceId:"service_4dvq4hr",
+  templateId:"template_b87q27c",
   sheetsHookUrl:"YOUR_GOOGLE_SHEETS_WEBHOOK"
 };
 const ACCESS_CODE="COBROKE@KE";
@@ -415,7 +415,7 @@ function checkAccess(){
 }
 
 function initEmailJS(){
-  if(EMAILJS_CONFIG.publicKey!=="YOUR_EMAILJS_PUBLIC_KEY"){
+  if(EMAILJS_CONFIG.publicKey!=="Ci4f7BYA6smdYP4-Q"){
     emailjs.init({publicKey:EMAILJS_CONFIG.publicKey});
     document.getElementById("setupBanner").classList.remove("visible");
   }
@@ -558,7 +558,7 @@ function submitListing(){
     const sd={ref,agent:agentName,phone:formData.agentPhone||"",agency:formData.agentAgency||"",location:formData.location||"",type:formData.propType||"",size:formData.size||"",price:formData.askingPrice||"",commission:formData.totalComm||"",titleType:formData.titleType||"",mandate:formData.writtenMandate||"",docsUploaded:sections[7].docs.filter(d=>docData[d.id].status==="uploaded").map(d=>d.name).join(", ")||"None",docsRequested:sections[7].docs.filter(d=>docData[d.id].status==="requested").map(d=>d.name).join(", ")||"None",submittedAt:new Date().toISOString(),fullSummary:summary};
     fetch(EMAILJS_CONFIG.sheetsHookUrl,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(sd)}).catch(()=>{});
   }
-  if(EMAILJS_CONFIG.serviceId==="YOUR_EMAILJS_SERVICE_ID"){
+  if(EMAILJS_CONFIG.serviceId==="service_4dvq4hr"){
     status.className="submit-status error";status.textContent="⚠ EmailJS not configured yet. Copy the text or print instead.";showToast("EmailJS not configured yet");return;
   }
   btn.disabled=true;status.className="submit-status sending";status.textContent="Sending to Seamless Landing Real Estate...";
@@ -646,7 +646,7 @@ STEP 1 — EMAILJS
 1. https://emailjs.com → free account
 2. Add Email Service → connect seamlesslanding@gmail.com
 3. Create Email Template — include {{full_summary}} in body
-4. Replace: YOUR_EMAILJS_PUBLIC_KEY, YOUR_EMAILJS_SERVICE_ID, YOUR_EMAILJS_TEMPLATE_ID
+4. Replace: Ci4f7BYA6smdYP4-Q, service_4dvq4hr, template_b87q27c
 
 STEP 2 — GOOGLE SHEETS
 1. New Sheet: "SLRE Co-Broker Submissions"
