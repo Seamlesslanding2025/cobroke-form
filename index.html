@@ -551,6 +551,8 @@ function buildText(){
 }
 
 function submitListing(){
+  // Always reinitialize EmailJS before sending
+  try { emailjs.init({publicKey: EMAILJS_CONFIG.publicKey}); } catch(e) {}
   const btn=document.getElementById("submitBtn"),status=document.getElementById("submitStatus");
   const ref=`SLRE-${Date.now().toString().slice(-6)}`;
   const summary=buildText();
@@ -565,7 +567,7 @@ function submitListing(){
   emailjs.send(EMAILJS_CONFIG.serviceId,EMAILJS_CONFIG.templateId,{to_email:"seamlesslanding@gmail.com",agent_name:agentName,agent_phone:formData.agentPhone||"",property_location:formData.location||"",property_type:formData.propType||"",asking_price:formData.askingPrice||"",ref_number:ref,full_summary:summary,submitted_at:new Date().toLocaleString("en-KE")
   }).then(()=>{
     status.className="submit-status success";status.textContent=`✓ Submitted! Reference: ${ref} — Check your email.`;btn.textContent="✓ Submitted";showToast("Listing submitted successfully!");localStorage.removeItem(SAVE_KEY);
-  }).catch(err=>{btn.disabled=false;status.className="submit-status error";status.textContent="Submission failed. Please copy the text and send manually.";console.error(err);});
+  }).catch(err=>{btn.disabled=false;status.className="submit-status error";status.textContent="Submission failed ("+JSON.stringify(err)+"). Please copy text and send manually.";console.error("EmailJS error:",err);});
 }
 
 function printSummary(){
