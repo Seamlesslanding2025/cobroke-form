@@ -415,7 +415,7 @@ function checkAccess(){
 }
 
 function initEmailJS(){
-  if(EMAILJS_CONFIG.publicKey!=="Ci4f7BYA6smdYP4-Q"){
+  if(EMAILJS_CONFIG.publicKey!=="YOUR_EMAILJS_PUBLIC_KEY"){
     emailjs.init({publicKey:EMAILJS_CONFIG.publicKey});
     document.getElementById("setupBanner").classList.remove("visible");
   }
@@ -554,11 +554,11 @@ function submitListing(){
   const btn=document.getElementById("submitBtn"),status=document.getElementById("submitStatus");
   const ref=`SLRE-${Date.now().toString().slice(-6)}`;
   const summary=buildText();
-  if(EMAILJS_CONFIG.sheetsHookUrl!=="https://script.google.com/macros/s/AKfycbx6EYUuIVbTG7brO545xiwmskQ-d6WPtSP7ROqv5hxRKwC1ysB9PhPnU7frPSxoQDAbig/exec"){
+  if(EMAILJS_CONFIG.sheetsHookUrl!=="YOUR_GOOGLE_SHEETS_WEBHOOK"){
     const sd={ref,agent:agentName,phone:formData.agentPhone||"",agency:formData.agentAgency||"",location:formData.location||"",type:formData.propType||"",size:formData.size||"",price:formData.askingPrice||"",commission:formData.totalComm||"",titleType:formData.titleType||"",mandate:formData.writtenMandate||"",docsUploaded:sections[7].docs.filter(d=>docData[d.id].status==="uploaded").map(d=>d.name).join(", ")||"None",docsRequested:sections[7].docs.filter(d=>docData[d.id].status==="requested").map(d=>d.name).join(", ")||"None",submittedAt:new Date().toISOString(),fullSummary:summary};
     fetch(EMAILJS_CONFIG.sheetsHookUrl,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(sd)}).catch(()=>{});
   }
-  if(EMAILJS_CONFIG.serviceId==="service_4dvq4hr"){
+  if(EMAILJS_CONFIG.serviceId==="YOUR_EMAILJS_SERVICE_ID"){
     status.className="submit-status error";status.textContent="⚠ EmailJS not configured yet. Copy the text or print instead.";showToast("EmailJS not configured yet");return;
   }
   btn.disabled=true;status.className="submit-status sending";status.textContent="Sending to Seamless Landing Real Estate...";
