@@ -303,7 +303,7 @@ const EMAILJS_CONFIG={
   publicKey:"Ci4f7BYA6smdYP4-Q",
   serviceId:"service_4dvq4hr",
   templateId:"template_b87q27c",
-  sheetsHookUrl:"YOUR_GOOGLE_SHEETS_WEBHOOK"
+  sheetsHookUrl:"https://script.google.com/macros/s/AKfycbx6EYUuIVbTG7brO545xiwmskQ-d6WPtSP7ROqv5hxRKwC1ysB9PhPnU7frPSxoQDAbig/exec"
 };
 const ACCESS_CODE="COBROKE@KE";
 const SAVE_KEY="slre_cobroke_v3";
@@ -554,7 +554,7 @@ function submitListing(){
   const btn=document.getElementById("submitBtn"),status=document.getElementById("submitStatus");
   const ref=`SLRE-${Date.now().toString().slice(-6)}`;
   const summary=buildText();
-  if(EMAILJS_CONFIG.sheetsHookUrl!=="YOUR_GOOGLE_SHEETS_WEBHOOK"){
+  if(EMAILJS_CONFIG.sheetsHookUrl!=="https://script.google.com/macros/s/AKfycbx6EYUuIVbTG7brO545xiwmskQ-d6WPtSP7ROqv5hxRKwC1ysB9PhPnU7frPSxoQDAbig/exec"){
     const sd={ref,agent:agentName,phone:formData.agentPhone||"",agency:formData.agentAgency||"",location:formData.location||"",type:formData.propType||"",size:formData.size||"",price:formData.askingPrice||"",commission:formData.totalComm||"",titleType:formData.titleType||"",mandate:formData.writtenMandate||"",docsUploaded:sections[7].docs.filter(d=>docData[d.id].status==="uploaded").map(d=>d.name).join(", ")||"None",docsRequested:sections[7].docs.filter(d=>docData[d.id].status==="requested").map(d=>d.name).join(", ")||"None",submittedAt:new Date().toISOString(),fullSummary:summary};
     fetch(EMAILJS_CONFIG.sheetsHookUrl,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(sd)}).catch(()=>{});
   }
@@ -654,7 +654,7 @@ STEP 2 — GOOGLE SHEETS
 2. Extensions → Apps Script → paste:
    function doPost(e){var s=SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();var d=JSON.parse(e.postData.contents);s.appendRow([d.ref,d.agent,d.phone,d.agency,d.location,d.type,d.size,d.price,d.commission,d.titleType,d.mandate,d.docsUploaded,d.docsRequested,d.submittedAt,d.fullSummary]);return ContentService.createTextOutput("OK");}
 3. Deploy → Web app → Execute as Me → Anyone → Copy URL
-4. Replace: YOUR_GOOGLE_SHEETS_WEBHOOK
+4. Replace: https://script.google.com/macros/s/AKfycbx6EYUuIVbTG7brO545xiwmskQ-d6WPtSP7ROqv5hxRKwC1ysB9PhPnU7frPSxoQDAbig/exec
 
 STEP 3 — GITHUB PAGES
 See walkthrough provided separately.
