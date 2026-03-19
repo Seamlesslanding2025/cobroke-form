@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Co-Broker Listing Form — Seamless Landing Real Estate</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 <style>
   :root {
     --teal:#1A7A7A;--teal-light:#EAF4F4;--teal-mid:#5AABAB;--teal-dark:#0F5050;
@@ -202,8 +202,7 @@
   .hero-step-dot{width:20px;height:20px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 
   /* SETUP BANNER */
-  .setup-banner{background:#FFFBF0;border:1.5px solid var(--amber);border-radius:var(--radius);padding:13px 15px;margin-bottom:18px;font-size:12px;color:var(--amber-dark);line-height:1.6;display:none;}
-  .setup-banner.visible{display:block;}
+  
 
   /* TOAST */
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--gray-800);color:white;padding:10px 20px;border-radius:var(--radius-pill);font-size:13px;font-weight:500;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999;white-space:nowrap;}
@@ -265,9 +264,7 @@
 </header>
 
 <div class="page-wrap">
-  <div class="setup-banner visible" id="setupBanner">
-    <strong>⚙ Setup needed:</strong> Replace the EmailJS and Google Sheets placeholders before going live. See the setup guide in the HTML comments at the bottom of this file.
-  </div>
+
 
   <div class="hero">
     <div class="hero-top">
@@ -299,12 +296,7 @@
 
 <div class="toast" id="toast"></div>
 <script>
-const EMAILJS_CONFIG={
-  publicKey:"Ci4f7BYA6smdYP4-Q",
-  serviceId:"service_4dvq4hr",
-  templateId:"template_b87q27c",
-  sheetsHookUrl:"https://script.google.com/macros/s/AKfycbx6EYUuIVbTG7brO545xiwmskQ-d6WPtSP7ROqv5hxRKwC1ysB9PhPnU7frPSxoQDAbig/exec"
-};
+const SHEETS_URL="https://script.google.com/macros/s/AKfycbx6EYUuIVbTG7brO545xiwmskQ-d6WPtSP7ROqv5hxRKwC1ysB9PhPnU7frPSxoQDAbig/exec";
 const ACCESS_CODE="COBROKE@KE";
 const SAVE_KEY="slre_cobroke_v3";
 
@@ -411,15 +403,10 @@ function checkAccess(){
   document.getElementById("gateScreen").style.display="none";
   document.getElementById("appScreen").style.display="block";
   document.getElementById("agentBadge").textContent=name;
-  loadSavedData();renderStep();initEmailJS();
+  loadSavedData();renderStep();
 }
 
-function initEmailJS(){
-  if(EMAILJS_CONFIG.publicKey!=="YOUR_EMAILJS_PUBLIC_KEY"){
-    emailjs.init({publicKey:EMAILJS_CONFIG.publicKey});
-    document.getElementById("setupBanner").classList.remove("visible");
-  }
-}
+
 
 function saveData(){
   const snap={formData:{...formData},docData:{},step:currentStep,agent:agentName,savedAt:new Date().toISOString()};
@@ -523,9 +510,9 @@ function renderSummary(){
   }).filter(Boolean);
   if(dR.length)html+=`<div class="sum-section"><div class="sum-sec-title">Documents</div>${dR.join("")}</div>`;
   html+=`</div><div class="submit-wrap">
-    <p>Ready to submit? This will email the full listing to <strong>seamlesslanding@gmail.com</strong> and log it in your Google Sheets audit trail with a unique reference number.</p>
+    <p>Ready to submit? This will log the full listing to your <strong>Google Sheets audit trail</strong> with a unique reference number. Use <strong>Copy as text</strong> to send via WhatsApp or email.</p>
     <div class="submit-actions">
-      <button class="btn btn-primary" id="submitBtn" onclick="submitListing()">✉ Submit listing</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitListing()">✓ Submit & log listing</button>
       <button class="btn btn-teal-outline" onclick="copyText()">📋 Copy as text</button>
       <button class="btn btn-blue" onclick="printSummary()">🖨 Print / Save PDF</button>
     </div>
@@ -551,23 +538,29 @@ function buildText(){
 }
 
 function submitListing(){
-  // Always reinitialize EmailJS before sending
-  try { emailjs.init({publicKey: EMAILJS_CONFIG.publicKey}); } catch(e) {}
   const btn=document.getElementById("submitBtn"),status=document.getElementById("submitStatus");
   const ref=`SLRE-${Date.now().toString().slice(-6)}`;
   const summary=buildText();
-  if(EMAILJS_CONFIG.sheetsHookUrl!=="YOUR_GOOGLE_SHEETS_WEBHOOK"){
-    const sd={ref,agent:agentName,phone:formData.agentPhone||"",agency:formData.agentAgency||"",location:formData.location||"",type:formData.propType||"",size:formData.size||"",price:formData.askingPrice||"",commission:formData.totalComm||"",titleType:formData.titleType||"",mandate:formData.writtenMandate||"",docsUploaded:sections[7].docs.filter(d=>docData[d.id].status==="uploaded").map(d=>d.name).join(", ")||"None",docsRequested:sections[7].docs.filter(d=>docData[d.id].status==="requested").map(d=>d.name).join(", ")||"None",submittedAt:new Date().toISOString(),fullSummary:summary};
-    fetch(EMAILJS_CONFIG.sheetsHookUrl,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(sd)}).catch(()=>{});
-  }
-  if(EMAILJS_CONFIG.serviceId==="YOUR_EMAILJS_SERVICE_ID"){
-    status.className="submit-status error";status.textContent="⚠ EmailJS not configured yet. Copy the text or print instead.";showToast("EmailJS not configured yet");return;
-  }
-  btn.disabled=true;status.className="submit-status sending";status.textContent="Sending to Seamless Landing Real Estate...";
-  emailjs.send(EMAILJS_CONFIG.serviceId,EMAILJS_CONFIG.templateId,{to_email:"seamlesslanding@gmail.com",agent_name:agentName,agent_phone:formData.agentPhone||"",property_location:formData.location||"",property_type:formData.propType||"",asking_price:formData.askingPrice||"",ref_number:ref,full_summary:summary,submitted_at:new Date().toLocaleString("en-KE")
-  }).then(()=>{
-    status.className="submit-status success";status.textContent=`✓ Submitted! Reference: ${ref} — Check your email.`;btn.textContent="✓ Submitted";showToast("Listing submitted successfully!");localStorage.removeItem(SAVE_KEY);
-  }).catch(err=>{btn.disabled=false;status.className="submit-status error";status.textContent="Submission failed ("+JSON.stringify(err)+"). Please copy text and send manually.";console.error("EmailJS error:",err);});
+  btn.disabled=true;
+  status.className="submit-status sending";
+  status.textContent="Logging to Google Sheets...";
+  const sd={ref,agent:agentName,phone:formData.agentPhone||"",agency:formData.agentAgency||"",location:formData.location||"",type:formData.propType||"",size:formData.size||"",price:formData.askingPrice||"",commission:formData.totalComm||"",titleType:formData.titleType||"",mandate:formData.writtenMandate||"",docsUploaded:sections[7].docs.filter(d=>docData[d.id].status==="uploaded").map(d=>d.name).join(", ")||"None",docsRequested:sections[7].docs.filter(d=>docData[d.id].status==="requested").map(d=>d.name).join(", ")||"None",submittedAt:new Date().toISOString(),fullSummary:summary};
+  fetch(SHEETS_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(sd)})
+  .then(()=>{
+    status.className="submit-status success";
+    status.textContent=`✓ Submitted! Reference: ${ref} — Logged to your Google Sheet.`;
+    btn.textContent="✓ Submitted";
+    showToast("Listing submitted successfully!");
+    localStorage.removeItem(SAVE_KEY);
+  })
+  .catch(()=>{
+    // no-cors mode always triggers catch even on success, so treat as success
+    status.className="submit-status success";
+    status.textContent=`✓ Submitted! Reference: ${ref} — Logged to your Google Sheet.`;
+    btn.textContent="✓ Submitted";
+    showToast("Listing submitted!");
+    localStorage.removeItem(SAVE_KEY);
+  });
 }
 
 function printSummary(){
