@@ -440,9 +440,24 @@ setInterval(()=>{if(document.getElementById("appScreen").style.display!=="none")
 
 function getV(id){return formData[id]||"";}
 function renderPills(f){
-  const cb=f.onChange?`,"${f.onChange}"`:"" ;
-  return`<div class="pill-group">${f.options.map(o=>`<div class="pill ${getV(f.id)===o?"sel":""}" onclick="setPill('${f.id}','${o}',this${cb})">${o}</div>`).join("")}</div>`;
+  var pills = f.options.map(function(o){
+    var sel = getV(f.id)===o ? ' sel' : '';
+    var cb = f.onChange ? ' data-cb="'+f.onChange+'"' : '';
+    return '<div class="pill'+sel+'" data-field="'+f.id+'" data-val="'+o+'"'+cb+' onclick="handlePill(this)">'+o+'</div>';
+  }).join('');
+  return '<div class="pill-group">'+pills+'</div>';
 }
+function handlePill(el){
+  var id=el.getAttribute('data-field');
+  var v=el.getAttribute('data-val');
+  var cb=el.getAttribute('data-cb');
+  formData[id]=v;
+  el.closest('.pill-group').querySelectorAll('.pill').forEach(function(p){p.classList.remove('sel');});
+  el.classList.add('sel');
+  saveData();
+  if(cb && typeof window[cb]==='function') window[cb](v);
+}
+
 function renderField(f){
   const req=f.req?`<span class="req"> *</span>`:"";
   let inp="";
@@ -621,7 +636,7 @@ function updateProgress(){
 
 function goTo(n){currentStep=Math.max(0,Math.min(sections.length,n));saveData();renderStep();}
 function saveF(id,v){formData[id]=v;}
-function setPill(id,v,el,cb){formData[id]=v;el.closest(".pill-group").querySelectorAll(".pill").forEach(p=>p.classList.remove("sel"));el.classList.add("sel");saveData();if(cb)window[cb](v);}
+function setPill(id,v,el,cb){formData[id]=v;if(el&&el.closest)el.closest('.pill-group').querySelectorAll('.pill').forEach(function(p){p.classList.remove('sel');});if(el)el.classList.add('sel');saveData();if(cb&&typeof window[cb]==='function')window[cb](v);}
 function toggleLeaseField(v){const f=document.getElementById("leaseYearsField");if(!f)return;if(v==="Freehold"){f.style.opacity="0.35";f.style.pointerEvents="none";f.querySelector("input").value="";formData["leaseYears"]="";}else{f.style.opacity="1";f.style.pointerEvents="auto";}}
 function toggleCommOther(v){const f=document.getElementById("commSplitOtherField");if(!f)return;if(v==="Other"){f.style.opacity="1";f.style.pointerEvents="auto";}else{f.style.opacity="0.35";f.style.pointerEvents="none";f.querySelector("input").value="";formData["commSplitOther"]="";}}
 function toggleJVFields(v){const ids=["jvLandSizeField","jvLandValueField","jvRatioField","ownerExpectationsField","devRequirementsField","devProfileRequiredField"];ids.forEach(id=>{const f=document.getElementById(id);if(!f)return;if(v==="No"){f.style.opacity="0.35";f.style.pointerEvents="none";}else{f.style.opacity="1";f.style.pointerEvents="auto";}});}
