@@ -316,15 +316,15 @@ const sections=[
     {id:"agentPhone",label:"Phone / WhatsApp",type:"text",req:true,placeholder:"e.g. 0712 345 678"},
     {id:"agentAgency",label:"Agency / company",type:"text",placeholder:"e.g. Acme Realty Ltd"},
     {id:"directToOwner",label:"Are you direct to the owner?",type:"radio",req:true,options:["Yes","No"]},
-    {id:"chainExplain",label:"If not direct, explain chain",type:"textarea",placeholder:"e.g. Owner → Agent A → you"},
+    {id:"chainExplain",label:"If not direct, explain chain",type:"textarea",placeholder:"e.g. Owner → Agent Jane Wanjiku (Nairobi Realty) → you. Owner aware and has consented."},
     {id:"writtenMandate",label:"Do you have a written mandate?",type:"radio",req:true,options:["Yes","No"]},
     {id:"mandateExpiry",label:"Mandate expiry date",type:"date"},
     {id:"ownerAware",label:"Is owner aware property is being marketed?",type:"radio",req:true,options:["Yes","No"]}
   ]},
   {id:"title",title:"Title & legal status",subtitle:"Ownership documentation and encumbrances",
    fields:[
-    {id:"titleType",label:"Title type",type:"radio",req:true,options:["Freehold","Leasehold"]},
-    {id:"leaseYears",label:"Years remaining on lease (if leasehold)",type:"number",placeholder:"e.g. 88"},
+    {id:"titleType",label:"Title type",type:"radio",req:true,options:["Freehold","Leasehold"],onChange:"toggleLeaseField"},
+    {id:"leaseYears",label:"Years remaining on lease (if leasehold)",type:"number",placeholder:"e.g. 88",wrapId:"leaseYearsField"},
     {id:"ardhisasa",label:"Title registered on ARDHISASA?",type:"radio",options:["Yes","No","Unknown"]},
     {id:"encumbrances",label:"Any encumbrances on title?",type:"radio",options:["None","Charge","Caveat","Other"]},
     {id:"subdivided",label:"Is property subdivided?",type:"radio",options:["Yes","No"]},
@@ -353,16 +353,16 @@ const sections=[
     {id:"viewNotice",label:"Notice required for viewing",type:"radio",options:["Same day","24 hrs","48 hrs","72 hrs+"]},
     {id:"viewDays",label:"Viewing days",type:"text",placeholder:"e.g. Mon–Sat, not Sundays"},
     {id:"viewFacilitator",label:"Who facilitates viewing?",type:"radio",options:["Listing agent","Owner","Caretaker","Either"]},
-    {id:"viewNotes",label:"Additional viewing notes",type:"textarea",placeholder:"Any other instructions for visiting agents"}
+    {id:"viewNotes",label:"Additional viewing notes",type:"textarea",placeholder:"e.g. Call listing agent 1 hr before arrival. Property is gated — agent must accompany buyer. No viewings on public holidays."}
   ]},
   {id:"commission",title:"Commission & co-brokering terms",subtitle:"Financial arrangements between agents",
    fields:[
     {id:"totalComm",label:"Total commission (%)",type:"number",req:true,placeholder:"e.g. 3"},
-    {id:"commSplit",label:"Co-broker split ratio",type:"radio",options:["50/50","60/40","70/30","Other"]},
-    {id:"commSplitOther",label:"If other, specify split",type:"text",placeholder:"e.g. 65/35"},
+    {id:"commSplit",label:"Co-broker split ratio",type:"radio",options:["50/50","60/40","70/30","33/33/34","Other"],onChange:"toggleCommOther"},
+    {id:"commSplitOther",label:"If other, specify split",type:"text",placeholder:"e.g. 65/35",wrapId:"commSplitOtherField"},
     {id:"whoPayComm",label:"Who pays commission?",type:"radio",options:["Seller","Buyer","Both"]},
     {id:"commProtected",label:"Is commission protected?",type:"radio",req:true,options:["Yes","No"]},
-    {id:"commNotes",label:"Commission notes (optional)",type:"textarea",placeholder:"Any additional terms or conditions"}
+    {id:"commNotes",label:"Commission notes (optional)",type:"textarea",placeholder:"e.g. Co-broker receives 1.5% on plot sale price. Commission paid within 7 days of completion. Buyer meets all viewing costs."}
   ]},
   {id:"documents",title:"Documents",subtitle:"Upload available documents or mark as requested from owner",type:"docs",
    docs:[
@@ -378,13 +378,13 @@ const sections=[
   ]},
   {id:"jv",title:"JV information (if applicable)",subtitle:"Only complete this section if this is a joint venture listing",
    fields:[
-    {id:"jvApplicable",label:"Is this a JV listing?",type:"radio",options:["Yes","No"]},
-    {id:"jvLandSize",label:"Land size (JV)",type:"text",placeholder:"e.g. 1 acre"},
-    {id:"jvLandValue",label:"Land value (KES)",type:"text",placeholder:"e.g. 30,000,000"},
-    {id:"jvRatio",label:"Proposed JV ratio",type:"text",placeholder:"e.g. 50% land / 50% construction"},
-    {id:"ownerExpectations",label:"Owner expectations",type:"textarea",placeholder:"Describe what the owner is looking for in a JV partner..."},
-    {id:"devRequirements",label:"Developer requirements",type:"textarea",placeholder:"e.g. Proven track record, registered company..."},
-    {id:"devProfileRequired",label:"Developer profile required?",type:"radio",options:["Yes","No"]}
+    {id:"jvApplicable",label:"Is this a JV listing?",type:"radio",options:["Yes","No"],onChange:"toggleJVFields"},
+    {id:"jvLandSize",label:"Land size (JV)",type:"text",placeholder:"e.g. 1 acre",wrapId:"jvLandSizeField"},
+    {id:"jvLandValue",label:"Land value (KES)",type:"text",placeholder:"e.g. 30,000,000",wrapId:"jvLandValueField"},
+    {id:"jvRatio",label:"Proposed JV ratio",type:"text",placeholder:"e.g. 50% land / 50% construction",wrapId:"jvRatioField"},
+    {id:"ownerExpectations",label:"Owner expectations",type:"textarea",placeholder:"e.g. Owner wants a developer with proven track record of 50+ units. Expects construction to begin within 12 months of agreement signing.",wrapId:"ownerExpectationsField"},
+    {id:"devRequirements",label:"Developer requirements",type:"textarea",placeholder:"e.g. Registered company with NCA certification. Minimum 3 completed projects. Must provide proof of financing before JV agreement.",wrapId:"devRequirementsField"},
+    {id:"devProfileRequired",label:"Developer profile required?",type:"radio",options:["Yes","No"],wrapId:"devProfileRequiredField"}
   ]}
 ];
 
@@ -440,7 +440,8 @@ setInterval(()=>{if(document.getElementById("appScreen").style.display!=="none")
 
 function getV(id){return formData[id]||"";}
 function renderPills(f){
-  return`<div class="pill-group">${f.options.map(o=>`<div class="pill ${getV(f.id)===o?"sel":""}" onclick="setPill('${f.id}','${o}',this)">${o}</div>`).join("")}</div>`;
+  const cb=f.onChange?`,"${f.onChange}"`:"" ;
+  return`<div class="pill-group">${f.options.map(o=>`<div class="pill ${getV(f.id)===o?"sel":""}" onclick="setPill('${f.id}','${o}',this${cb})">${o}</div>`).join("")}</div>`;
 }
 function renderField(f){
   const req=f.req?`<span class="req"> *</span>`:"";
@@ -449,7 +450,7 @@ function renderField(f){
   else if(f.type==="select")inp=`<select onchange="saveF('${f.id}',this.value);saveData()">${f.options.map(o=>`<option value="${o==="Select..."||o==="—"?"":o}"${getV(f.id)===(o==="Select..."||o==="—"?"":o)?" selected":""}>${o}</option>`).join("")}</select>`;
   else if(f.type==="textarea")inp=`<textarea placeholder="${f.placeholder||""}" onblur="saveF('${f.id}',this.value);saveData()">${getV(f.id)}</textarea>`;
   else inp=`<input type="${f.type}" placeholder="${f.placeholder||""}" value="${getV(f.id)}" onblur="saveF('${f.id}',this.value);saveData()" onchange="saveF('${f.id}',this.value)">`;
-  return`<div class="field"><label>${f.label}${req}</label>${inp}</div>`;
+  const wid=f.wrapId?` id="${f.wrapId}"`:"";return`<div class="field"${wid}><label>${f.label}${req}</label>${inp}</div>`;
 }
 function pairFields(fields){
   const rows=[];
@@ -606,6 +607,7 @@ function renderStep(){
     content=`<div class="card"><div class="sec-header"><div class="sec-num">${num}</div><div><div class="sec-title">${s.title}</div><div class="sec-subtitle">${s.subtitle}</div></div></div><div class="divider" style="margin-bottom:18px;"></div>${body}<div class="nav-row"><span style="font-size:12px;color:#5C5E5D;">${num} of ${sections.length}</span><div style="display:flex;gap:8px;">${currentStep>0?`<button class="btn btn-ghost" onclick="goTo(${currentStep-1})">← Back</button>`:""}<button class="btn btn-primary" onclick="goTo(${currentStep+1})">${currentStep===sections.length-1?"Review & submit →":"Next →"}</button></div></div></div>`;
   }
   document.getElementById("formContent").innerHTML=content;
+  applyConditionalStates();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
@@ -619,7 +621,10 @@ function updateProgress(){
 
 function goTo(n){currentStep=Math.max(0,Math.min(sections.length,n));saveData();renderStep();}
 function saveF(id,v){formData[id]=v;}
-function setPill(id,v,el){formData[id]=v;el.closest(".pill-group").querySelectorAll(".pill").forEach(p=>p.classList.remove("sel"));el.classList.add("sel");saveData();}
+function setPill(id,v,el,cb){formData[id]=v;el.closest(".pill-group").querySelectorAll(".pill").forEach(p=>p.classList.remove("sel"));el.classList.add("sel");saveData();if(cb)window[cb](v);}
+function toggleLeaseField(v){const f=document.getElementById("leaseYearsField");if(!f)return;if(v==="Freehold"){f.style.opacity="0.35";f.style.pointerEvents="none";f.querySelector("input").value="";formData["leaseYears"]="";}else{f.style.opacity="1";f.style.pointerEvents="auto";}}
+function toggleCommOther(v){const f=document.getElementById("commSplitOtherField");if(!f)return;if(v==="Other"){f.style.opacity="1";f.style.pointerEvents="auto";}else{f.style.opacity="0.35";f.style.pointerEvents="none";f.querySelector("input").value="";formData["commSplitOther"]="";}}
+function toggleJVFields(v){const ids=["jvLandSizeField","jvLandValueField","jvRatioField","ownerExpectationsField","devRequirementsField","devProfileRequiredField"];ids.forEach(id=>{const f=document.getElementById(id);if(!f)return;if(v==="No"){f.style.opacity="0.35";f.style.pointerEvents="none";}else{f.style.opacity="1";f.style.pointerEvents="auto";}});}
 function toggleDocUpload(id){const dd=docData[id];if(dd.status==="uploaded"){dd.status="";dd.files=[];}else{dd.status="uploaded";}saveData();renderStep();if(dd.status==="uploaded")setTimeout(()=>{const inp=document.getElementById("fileInput_"+id);if(inp&&dd.files.length===0)inp.click();},100);}
 function toggleDocRequest(id){const dd=docData[id];dd.status=dd.status==="requested"?"":"requested";saveData();renderStep();}
 function triggerUpload(id){const inp=document.getElementById("fileInput_"+id);if(inp)inp.click();}
@@ -627,6 +632,13 @@ function handleFiles(id,inp){const dd=docData[id];Array.from(inp.files).forEach(
 function removeFile(id,fi){docData[id].files.splice(fi,1);if(!docData[id].files.length)docData[id].status="";saveData();renderStep();}
 function saveDocNote(id,v){docData[id].note=v;}
 function clearAndRestart(){if(!confirm("Start a new listing? This will clear all current data."))return;localStorage.removeItem(SAVE_KEY);Object.keys(formData).forEach(k=>delete formData[k]);sections[7].docs.forEach(d=>{docData[d.id]={status:"",files:[],note:""};});formData["agentName"]=agentName;currentStep=0;renderStep();}
+function applyConditionalStates(){
+  if(formData.titleType) toggleLeaseField(formData.titleType);
+  if(formData.commSplit) toggleCommOther(formData.commSplit);
+  else toggleCommOther("50/50"); // default grey out other field
+  if(formData.jvApplicable) toggleJVFields(formData.jvApplicable);
+  else toggleJVFields("No"); // default grey out JV fields
+}
 function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
 </script>
 
